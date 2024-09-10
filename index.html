@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiChats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        height: 100vh;
+        margin: 0;
+        background-color: #ecf0f1;
+        transition: background-color 0.3s, zoom 0.3s;
+    }
+    .sidebar {
+        width: 250px;
+        background-color: #2c3e50;
+        color: white;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: background-color 0.3s;
+    }
+    .sidebar h3 {
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    .profile-image {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        margin: 3px auto;
+        display: block;
+        border: 2px solid #3498db;
+    }
+    .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .sidebar ul li {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #34495e;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        color: white;
+    }
+    .sidebar ul li:hover {
+        background-color: #e74c3c;
+    }
+    .sidebar button {
+        background-color: #e74c3c;
+        border: none;
+        color: white;
+        padding: 10px;
+        cursor: pointer;
+        margin-top: 10px;
+        width: 100%;
+        border-radius: 5px;
+    }
+    .sidebar button:hover {
+        background-color: #c0392b;
+    }
+    .main-content {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    h1, h4 {
+        text-align: center;
+        color: #2c3e50;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+    }
+    .chat-box {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        border: 1px solid #bdc3c7;
+        background-color: white;
+        margin-bottom: 10px;
+        height: 60vh;
+    }
+    .chat-box p {
+        padding: 10px;
+        background-color: #e1f5fe;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        word-wrap: break-word;
+    }
+    .input-area {
+        display: flex;
+        position: relative;
+    }
+    .input-area input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 25px;
+        border: 1px solid #bdc3c7;
+        outline: none;
+    }
+    .input-area button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background-color: #3498db;
+        color: white;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .input-area button:hover {
+        background-color: #2980b9;
+    }
+    .input-area button i {
+        font-size: 20px;
+    }
+    .chat-box pre {
+        white-space: pre-wrap; /* Preserve whitespace and line breaks */
+        background-color: #e1f5fe;
+        border-radius: 5px;
+        padding: 10px;
+    }
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        transition: opacity 0.3s;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+    }
+    .modal-header {
+        padding: 2px 16px;
+        background-color: #5cb85c;
+        color: white;
+    }
+    .modal-body {
+        padding: 2px 16px;
+    }
+    .modal-footer {
+        padding: 2px 16px;
+        background-color: #5cb85c;
+        color: white;
+        text-align: right;
+    }
+    .close {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .theme-option {
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 5px 0;
+        background-color: #3498db;
+        color: white;
+        text-align: center;
+    }
+    .theme-option:hover {
+        background-color: #2980b9;
+    }
+</style>
+<body>
+
+<div class="sidebar">
+    <h3>GeminiChats</h3>
+    <img src="{{ url_for('static', filename='profile img.PNG') }}" alt="Profile Image" class="profile-image">
+    <p>---------------------------------------------</p>
+    <div class="chat-list">
+        <ul id="chat-list">
+            <!-- Dynamic chat list rendering -->
+        </ul>
+    </div>
+    <p>----------------------------------------------</p>
+    <div>
+        <button onclick="createNewChat()">New Chat</button>
+        <button onclick="deleteSelectedChats()">Delete Selected Chats</button>
+        <button onclick="openSettings()">Settings</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <h1>GeminiChats BY Noor Saeed</h1>
+    <h4>How may I help Today?</h4>
+    <hr>
+    <div class="chat-box" id="chat-box">
+        <p>Welcome to the chat! Start a conversation.</p>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" style="display: none; text-align: center; padding: 20px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #3498db;"></i>
+        <p>Loading...</p>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Type your query...">
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+
+
+<!-- The Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>Settings</h2>
+        </div>
+        <div class="modal-body">
+            <h3>Choose Theme Color</h3>
+            <div class="theme-option" onclick="changeTheme('default')">Default</div>
+            <div class="theme-option" onclick="changeTheme('dark')">Dark</div>
+            <div class="theme-option" onclick="changeTheme('light')">Light</div>
+            <div class="theme-option" onclick="changeTheme('blue')">Blue</div>
+            <hr>
+            <h3>Zoom</h3>
+            <button onclick="zoomIn()">Zoom In</button>
+            <button onclick="zoomOut()">Zoom Out</button>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeSettings()">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let currentZoom = 1;   // Default zoom level
+
+    function openSettings() {
+        document.getElementById('settingsModal').style.display = 'block';
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+
+    function changeTheme(theme) {
+        switch (theme) {
+            case 'dark':
+                document.body.style.backgroundColor = '#34495e';
+                document.querySelector('.sidebar').style.backgroundColor = '#2c3e50';
+                document.querySelector('.sidebar').style.color = 'white';
+                document.querySelector('.chat-box').style.backgroundColor = '#2c3e50';
+                document.querySelector('.input-area input').style.backgroundColor = '#34495e';
+                document.querySelector('.input-area input').style.color = '#ecf0f1';
+                document.querySelector('.input-area button').style.backgroundColor = '#3498db';
+                break;
+            case 'light':
+                document.body.style.backgroundColor = '#ecf0f1';
+                document.querySelector('.sidebar').style.backgroundColor = '#ffffff';
+                document.querySelector('.chat-box').style.backgroundColor = '#ffffff';
+                document.querySelector('.input-area input').style.backgroundColor = '#ffffff';
+                document.querySelector('.input-area input').style.color = '#2c3e50';
+                document.querySelector('.input-area button').style.backgroundColor = '#3498db';
+                break;
+            case 'blue':
+                document.body.style.backgroundColor = '#e0f7fa';
+                document.querySelector('.sidebar').style.backgroundColor = '#0097a7';
+                document.querySelector('.chat-box').style.backgroundColor = '#b3e5fc';
+                document.querySelector('.input-area input').style.backgroundColor = '#b3e5fc';
+                document.querySelector('.input-area input').style.color = '#006064';
+                document.querySelector('.input-area button').style.backgroundColor = '#0097a7';
+                break;
+            default:
+                document.body.style.backgroundColor = '#ecf0f1';
+                document.querySelector('.sidebar').style.backgroundColor = '#2c3e50';
+                document.querySelector('.chat-box').style.backgroundColor = '#ffffff';
+                document.querySelector('.input-area input').style.backgroundColor = '#ffffff';
+                document.querySelector('.input-area input').style.color = '#2c3e50';
+                document.querySelector('.input-area button').style.backgroundColor = '#3498db';
+        }
+    }
+
+
+    function zoomIn() {
+        currentZoom += 0.1;
+        document.body.style.zoom = currentZoom;
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(0.5, currentZoom - 0.1);
+        document.body.style.zoom = currentZoom;
+    }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
