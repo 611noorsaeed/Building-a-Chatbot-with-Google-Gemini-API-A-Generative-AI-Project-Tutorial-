@@ -8,10 +8,7 @@ chats = [{'name': 'New Chat', 'id': 1, 'messages': []}]  # Default first chat
 def index():
     return render_template('index.html')
 
-# Route to get the list of chats
-@app.route('/get_chats', methods=['GET'])
-def get_chats():
-    return jsonify({'chats': chats})
+
 
 # Route to create a new chat
 @app.route('/new_chat', methods=['POST'])
