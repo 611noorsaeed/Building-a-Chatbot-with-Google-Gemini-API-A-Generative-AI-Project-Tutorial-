@@ -254,10 +254,48 @@
         </div>
     </div>
 </div>
-
-
 <script>
+    let activeChatId = 1;  // Default active chat ID is the first one
     let currentZoom = 1;   // Default zoom level
+
+    function createNewChat() {
+        const chatName = prompt("Enter new chat name:");
+        if (chatName) {
+            fetch('/new_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_name: chatName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadChats();  // Refresh chat list
+                selectChat(data.chat_id);  // Switch to the new chat
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function selectChat(chatId) {
+        activeChatId = chatId;
+        loadChatHistory(chatId);
+        loadChats();  // Refresh chat list to update active chat highlight
+    }
+
+    function deleteSelectedChats() {
+        if (confirm('Are you sure you want to delete the selected chat?')) {
+            fetch('/delete_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: activeChatId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadChats();  // Refresh chat list
+                document.getElementById('chat-box').innerHTML = '';  // Clear chat history
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
 
     function openSettings() {
         document.getElementById('settingsModal').style.display = 'block';
@@ -266,7 +304,6 @@
     function closeSettings() {
         document.getElementById('settingsModal').style.display = 'none';
     }
-
 
     function changeTheme(theme) {
         switch (theme) {
@@ -305,7 +342,6 @@
         }
     }
 
-
     function zoomIn() {
         currentZoom += 0.1;
         document.body.style.zoom = currentZoom;
@@ -315,6 +351,9 @@
         currentZoom = Math.max(0.5, currentZoom - 0.1);
         document.body.style.zoom = currentZoom;
     }
+
+    window.onload = loadChats;
+
 </script>
 </body>
 </html>
