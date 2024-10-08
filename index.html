@@ -258,6 +258,51 @@
     let activeChatId = 1;  // Default active chat ID is the first one
     let currentZoom = 1;   // Default zoom level
 
+    function loadChats() {
+        fetch('/get_chats')
+        .then(response => response.json())
+        .then(data => {
+            const chatList = document.getElementById('chat-list');
+            chatList.innerHTML = '';  // Clear current chat list
+
+            data.chats.forEach(chat => {
+                const li = document.createElement('li');
+                li.textContent = chat.name;
+                li.setAttribute('data-id', chat.id);
+                li.onclick = () => selectChat(chat.id);
+                if (chat.id === activeChatId) {
+                    li.style.backgroundColor = '#e74c3c';  // Highlight active chat
+                }
+                chatList.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function selectChat(chatId) {
+        activeChatId = chatId;
+        loadChatHistory(chatId);
+        loadChats();  // Refresh chat list to update active chat highlight
+    }
+
+    function loadChatHistory(chatId) {
+        fetch(`/get_chat_history?chat_id=${chatId}`)
+        .then(response => response.json())
+        .then(data => {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';  // Clear current chat history
+
+            data.messages.forEach(message => {
+                const messageElem = document.createElement('pre');
+                messageElem.textContent = message.text;
+                chatBox.appendChild(messageElem);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+
+
     function createNewChat() {
         const chatName = prompt("Enter new chat name:");
         if (chatName) {
@@ -275,11 +320,6 @@
         }
     }
 
-    function selectChat(chatId) {
-        activeChatId = chatId;
-        loadChatHistory(chatId);
-        loadChats();  // Refresh chat list to update active chat highlight
-    }
 
     function deleteSelectedChats() {
         if (confirm('Are you sure you want to delete the selected chat?')) {
